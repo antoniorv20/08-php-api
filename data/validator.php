@@ -9,7 +9,7 @@ class Validator{
         return $saneados;
     }
 
-    public static function validar($data){
+    public static function validarUsuario($data){
         $errors = [];
 
         //validar nombre
@@ -28,6 +28,39 @@ class Validator{
             $errors['email'] = "El formato del email no es válido";
         }elseif(strlen($data['email']) > 255){
             $errors['email'] = "El email no puede exceder de 255 caracteres";
+        }
+
+        return $errors;
+    }
+
+    public static function validarPelicula($data){
+        $errors = [];
+
+        //validar nombre
+        if(!isset($data['titulo']) || empty(trim($data['titulo']))){
+            $errors['titulo'] = "El titulo es necesario";
+        }elseif(strlen($data['titulo']) < 2 || strlen($data['titulo']) > 30){
+            $errors['titulo'] = "El titulo debe tener entre 2 y 30 caracteres";
+        } elseif (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ' -0-9]+$/u", $data['titulo'])) {
+            $errors['titulo'] = "El titulo solo debe contener letras y espacios";
+        }
+
+        //validar correo
+        if(!isset($data['precio']) || empty(trim($data['precio']))){
+            $errors['precio'] = "El precio es necesario";
+        }elseif($data['precio'] < 0 ){
+            $errors['titulo'] = "El precio no puede ser negativo";
+        }elseif(!filter_var($data['precio'], FILTER_VALIDATE_FLOAT)){
+            $errors['precio'] = "El formato del precio no es válido";
+        }
+
+        //validar ID_DIRECTOR
+        if(!isset($data['id_director']) || empty(trim($data['id_director']))){
+            $errors['id_director'] = "El id_director es necesario";
+        }elseif($data['id_director'] < 0 ){
+            $errors['id_director'] = "El id del director no puede ser negativo";
+        }elseif(!filter_var($data['id_director'], FILTER_VALIDATE_INT)){
+            $errors['id_director'] = "El formato del id de director no es válido";
         }
 
         return $errors;

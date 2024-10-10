@@ -21,7 +21,8 @@ class Usuario
 
     public function getById($id)
     {
-        $result = $this->db->query("SELECT id, nombre, email FROM usuario WHERE id = ?", [$id]);
+        $idSaneado = Validator::sanear([$id]);
+        $result = $this->db->query("SELECT id, nombre, email FROM usuario WHERE id = ?", [$idSaneado[0]]);
         return $result->fetch_assoc();
     }
 
@@ -29,7 +30,7 @@ class Usuario
     {
         $data = ['nombre' => $nombre, 'email' => $email];
         $dataSaneados = Validator::sanear($data);
-        $errors = Validator::validar($dataSaneados);
+        $errors = Validator::validarUsuario($dataSaneados);
 
         if (!empty($errors)) {
             $errores = new ValidatorException($errors);
@@ -55,7 +56,7 @@ class Usuario
     {
         $data = ['id' => $id, 'nombre' => $nombre, 'email' => $email];
         $dataSaneados = Validator::sanear($data);
-        $errors = Validator::validar($dataSaneados);
+        $errors = Validator::validarUsuario($dataSaneados);
 
         if (!empty($errors)) {
             $errores = new ValidatorException($errors);
