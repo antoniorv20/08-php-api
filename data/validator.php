@@ -9,7 +9,7 @@ class Validator{
         return $saneados;
     }
 
-    public static function validarUsuario($data){
+    public static function validar($data){
         $errors = [];
 
         //validar nombre
@@ -36,36 +36,55 @@ class Validator{
     public static function validarPelicula($data){
         $errors = [];
 
-        //validar nombre
         if(!isset($data['titulo']) || empty(trim($data['titulo']))){
-            $errors['titulo'] = "El titulo es necesario";
-        }elseif(strlen($data['titulo']) < 2 || strlen($data['titulo']) > 30){
-            $errors['titulo'] = "El titulo debe tener entre 2 y 30 caracteres";
-        } elseif (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ' -0-9]+$/u", $data['titulo'])) {
-            $errors['titulo'] = "El titulo solo debe contener letras y espacios";
+            $errors['titulo'] = "El título es necesario";
+        }elseif(strlen($data['titulo']) < 2 || strlen($data['titulo']) > 50){
+            $errors['titulo'] = "El titulo debe tener entre 2 y 50 caracteres";
         }
 
-        //validar correo
         if(!isset($data['precio']) || empty(trim($data['precio']))){
             $errors['precio'] = "El precio es necesario";
-        }elseif($data['precio'] < 0 ){
-            $errors['titulo'] = "El precio no puede ser negativo";
-        }elseif(!filter_var($data['precio'], FILTER_VALIDATE_FLOAT)){
-            $errors['precio'] = "El formato del precio no es válido";
+        }elseif($data['precio'] < 0){
+            $errors['precio'] = "El precio debe ser mayor que 0";
         }
 
-        //validar ID_DIRECTOR
         if(!isset($data['id_director']) || empty(trim($data['id_director']))){
-            $errors['id_director'] = "El id_director es necesario";
-        }elseif($data['id_director'] < 0 ){
-            $errors['id_director'] = "El id del director no puede ser negativo";
-        }elseif(!filter_var($data['id_director'], FILTER_VALIDATE_INT)){
-            $errors['id_director'] = "El formato del id de director no es válido";
+            $errors['id_director'] = "El id del director es necesario";
         }
 
         return $errors;
     }
 
+    public static function esFormatoFecha($string, $formato = 'Y-m-d') {
+        $fecha = DateTime::createFromFormat($formato, $string);
+        return $fecha && $fecha->format($formato) === $string;
+    }
+
+    public static function validarDirector($data){
+        $errors = [];
+
+        if(!isset($data['nombre']) || empty(trim($data['nombre']))){
+            $errors['nombre'] = "El nombre es necesario";
+        }elseif(strlen($data['nombre']) < 2 || strlen($data['nombre']) > 50){
+            $errors['titulo'] = "El nombre debe tener entre 2 y 50 caracteres";
+        }
+
+        if(!isset($data['apellido']) || empty(trim($data['apellido']))){
+            $errors['apellido'] = "El apellido es necesario";
+        }elseif(strlen($data['apellido']) < 2 || strlen($data['apellido']) > 50){
+            $errors['apellido'] = "El apellido debe tener entre 2 y 50 caracteres";
+        }
+
+        if(isset($data['fecha_nacimiento']) && !self::esFormatoFecha($data['fecha_nacimiento'])){
+            $errors['fecha_nacimiento'] = "El formato de la fecha no es válido";
+        }
+
+        if(isset($data['biografia']) && strlen($data['biografia']) > 65500){
+            $errors['biografia'] = "La biografía es demasiado extensa";
+        }
+
+        return $errors;       
+    }
 
 
 }

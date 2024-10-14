@@ -2,112 +2,84 @@
 
 require_once '../data/pelicula.php';
 require_once 'utilidades.php';
-/**
- * Establecer el encabezado
- * La respuesta va a ser un objeto tipo JSON
- * Indica al  cliente (navegador web o aplicación que realiza  la petición HTTP) que el contenido de la respuesta será en formato JSON
- */
 
 header('Content-Type: application/json');
 
 $pelicula = new Pelicula();
 
-
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Obtener la URI de la petición
 $uri = $_SERVER['REQUEST_URI'];
 
 $parametros = Utilidades::parseUriParameters($uri);
 
 $id = Utilidades::getParameterValue($parametros, 'id');
 
-switch ($method) {
+switch($method){
     case 'GET':
-        if ($id) {
+        if($id){
             $respuesta = getPeliculaById($pelicula, $id);
-        } else {
+        }else{
             $respuesta = getAllPeliculas($pelicula);
         }
         echo json_encode($respuesta);
         break;
     case 'POST':
-        setFilm($pelicula);
+        setPelicula($pelicula);
         break;
     case 'PUT':
-        if ($id) {
-            updateFilm($pelicula, $id);
-        } else {
-            http_response_code(400);
-            echo json_encode(['error' => 'ID no proporcionado']);
+        if($id){
+          updatePelicula($pelicula, $id);
+        }else{
+          http_response_code(400);
+          echo json_encode(['error' => 'ID no proporcionado']);
         }
         break;
     case 'DELETE':
-        if ($id) {
-            deleteUser($pelicula, $id);
-        } else {
-            http_response_code(400);
-            echo json_encode(['error' => 'ID no proporcionado']);
+        if($id){
+          deletePelicula($pelicula, $id);
+        }else{
+          http_response_code(400);
+          echo json_encode(['error' => 'ID no proporcionado']);
         }
         break;
     default:
         http_response_code(405);
         echo json_encode(['error' => 'Método no permitido']);
-}
+  }
 
-function getPeliculaById($pelicula, $id)
-{
+  function getPeliculaById($pelicula, $id){
     return $pelicula->getById($id);
-}
+  }
 
-function getAllPeliculas($pelicula)
-{
+  function getAllPeliculas($pelicula){
     return $pelicula->getAll();
-}
+  }
 
-function setFilm($pelicula)
-{
-    // Obtiene el contenido de php://input
+  function setPelicula($pelicula){
+    $data = json_decode(file_get_contents('php://input'), true);
+    if(isset($data['titulo']) && isset($data['precio']) && isset($data['id_director'])){
+      $id = $pelicula->create($data['titulo'], $data['precio'], $data['id_director']);
+      echo json_encode(['id' => $id]);
+    }else{
+      echo json_encode(['Error' => 'Datos insuficientes']);
+    }
+  }
+
+  function updatePelicula($pelicula, $id){
     $data = json_decode(file_get_contents('php://input'), true);
 
-    // Verifica que los datos no estén vacíos
-    if (!empty($data['titulo']) && !empty($data['precio']) && is_numeric($data['precio'])&& !empty($data['id_director'])) {
-        // Crea la película y obtiene el ID
-        $id = $pelicula->create($data['titulo'], $data['precio'], $data['id_director']);
-        echo json_encode(['id' => $id]);
-    } else {
-        // Devuelve un error si los datos son insuficientes
-        echo json_encode(['Error' => 'Datos insuficientes']);
+    if(isset($data['titulo']) && isset($data['precio']) && isset($data['id_director'])){
+      $affected = $pelicula->update($id, $data['titulo'], $data['precio'], $data['id_director']);
+      echo json_encode(['affected' => $affected]); 
+    }else{
+      echo json_encode(['Error' => 'Datos insuficientes']);
     }
-}
+ 
+  }
 
-
-function updateFilm($pelicula, $id)
+  function deletePelicula($pelicula, $id)
 {
-    // Obtener los datos del cuerpo de la solicitud
-    $data = json_decode(file_get_contents('php://input'), true);
-
-    // Verificar que se han enviado datos
-    if (!empty($data)) {
-
-        // Validar que se envió un nombre y un email
-        if (!empty($data['titulo']) && !empty($data['precio']) && !empty($data['id_director'])) {
-
-            // Actualizar el usuario en la base de datos
-            $affected = $pelicula->update($id, $data['titulo'], $data['precio'], $data['id_director']);
-            echo json_encode(['affected' => $affected]);
-
-        } else {
-            echo json_encode(['error' => 'Titulo ,precio y id_director son obligatorios']);
-        }
-
-    }
-}
-
-function deleteUser($pelicula, $id)
-{
-
     $affected = $pelicula->delete($id);
     echo json_encode(['affected' => $affected]);
 }
-

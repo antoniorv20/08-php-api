@@ -4,8 +4,7 @@ require_once 'database.php';
 require_once 'validator.php';
 require_once 'validatorException.php';
 
-class Usuario
-{
+class Usuario{
     private Database $db;
 
     public function __construct()
@@ -13,29 +12,33 @@ class Usuario
         $this->db = new Database();
     }
 
-    public function getAll()
-    {
+    public function getAll(){
         $result = $this->db->query("SELECT id, nombre, email FROM usuario;");
-        return $result->fetch_all(MYSQLI_ASSOC);
+        return $result->fetch_all(MYSQLI_ASSOC);    
     }
 
-    public function getById($id)
-    {
+    public function getById($id){
         $idSaneado = Validator::sanear([$id]);
         $result = $this->db->query("SELECT id, nombre, email FROM usuario WHERE id = ?", [$idSaneado[0]]);
         return $result->fetch_assoc();
     }
 
-    public function create($nombre, $email)
-    {
+    public function create($nombre, $email){
         $data = ['nombre' => $nombre, 'email' => $email];
         $dataSaneados = Validator::sanear($data);
-        $errors = Validator::validarUsuario($dataSaneados);
+        $errors = Validator::validar($dataSaneados);
 
-        if (!empty($errors)) {
-            $errores = new ValidatorException($errors);
-            return $errores->getErrors();
+        if(!empty($errors)){
+            $erroresString = '';
+            if(isset($errors['nombre'])){
+            $erroresString .= $errors['nombre'] . ' ';
         }
+        if(isset($errors['email'])){
+            $erroresString .= $errors['email'] . ' ';
+        }
+
+        return $erroresString;
+    }
 
         $nombreSaneado = $dataSaneados['nombre'];
         $emailSaneado = $dataSaneados['email'];
@@ -43,7 +46,7 @@ class Usuario
         // Verificar si el email ya existe
         $result = $this->db->query("SELECT id FROM usuario WHERE email = ?", [$emailSaneado]);
         if ($result->num_rows > 0) {
-            return "El email ya existe";
+            return  "El email ya existe";
         }
 
         //lanzamos la consulta
@@ -52,13 +55,12 @@ class Usuario
         return $this->db->query("SELECT LAST_INSERT_ID() as id")->fetch_assoc()['id'];
     }
 
-    public function update($id, $nombre, $email)
-    {
+    public function update($id, $nombre, $email){
         $data = ['id' => $id, 'nombre' => $nombre, 'email' => $email];
         $dataSaneados = Validator::sanear($data);
-        $errors = Validator::validarUsuario($dataSaneados);
+        $errors = Validator::validar($dataSaneados);
 
-        if (!empty($errors)) {
+        if(!empty($errors)){
             $errores = new ValidatorException($errors);
             return $errores->getErrors();
         }
@@ -67,8 +69,8 @@ class Usuario
         $idSaneado = $dataSaneados['id'];
 
 
-        // Verificar si el nuevo email ya existe para otro usuario
-        $result = $this->db->query("SELECT id FROM usuario WHERE email = ? AND id != ?", [$idSaneado, $emailSaneado]);
+         // Verificar si el nuevo email ya existe para otro usuario
+        $result = $this->db->query("SELECT id FROM usuario WHERE email = ? AND id != ?", [$emailSaneado, $idSaneado]);
 
         if ($result->num_rows > 0) {
             return "El email ya está en uso por otro usuario";
@@ -78,8 +80,7 @@ class Usuario
         return $this->db->query("SELECT ROW_COUNT() as affected")->fetch_assoc()['affected'];
     }
 
-    public function delete($id)
-    {
+    public function delete($id){
         $idSaneado = Validator::sanear([$id]);
         $this->db->query("DELETE FROM usuario WHERE id = ?", [$idSaneado[0]]);
         return $this->db->query("SELECT ROW_COUNT() as affected")->fetch_assoc()['affected'];
