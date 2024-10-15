@@ -29,8 +29,7 @@ class Director{
         $errors = Validator::validarDirector($dataSaneados);
 
         if(!empty($errors)){
-            $errores = new ValidatorException($errors);
-            return $errores->getErrors();
+            return $errors;
         }
 
         $nombreSaneado = $dataSaneados['nombre'];
@@ -50,9 +49,9 @@ class Director{
         $errors = Validator::validarDirector($dataSaneados);
 
         if(!empty($errors)){
-            $errores = new ValidatorException($errors);
-            return $errores->getErrors();
+            return $errors;
         }
+
         $nombreSaneado = $dataSaneados['nombre'];
         $apellidoSaneado = $dataSaneados['apellido'];
         $fNacimientoSaneado = $dataSaneados['fecha_nacimiento'];
@@ -63,6 +62,9 @@ class Director{
         $this->db->query("UPDATE director SET nombre = ?, apellido = ?, fecha_nacimiento = ?, biografia = ? WHERE id = ?", [$nombreSaneado, $apellidoSaneado, $fNacimientoSaneado, $biografiaSaneado, $idSaneado]);
         return $this->db->query("SELECT ROW_COUNT() as affected")->fetch_assoc()['affected'];
     }
+
+
+    
 
     public function delete($id){
         $idSaneado = Validator::sanear([$id]);
