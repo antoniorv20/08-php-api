@@ -9,12 +9,21 @@
 <body>
     <h2>Crear Película</h2>
     <form id="createForm">
-        <input type="text" id="createTitulo" placeholder="Título" required>
-        <input type="number" id="createPrecio" placeholder="Precio" required>
-        <input type="number" id="createDirector" placeholder="ID del Director" required>
-        <button type="submit">Crear Película</button>
-        <div id="createError" class="error"></div>
+        <label for="createTitulo">Título:</label>
+        <input type="text" id="createTitulo" name="titulo" required>
+        
+        <label for="createPrecio">Precio:</label>
+        <input type="number" id="createPrecio" name="precio" required>
+        
+        <label for="createDirector">Director:</label>
+        <select id="createDirector" name="director" required>
+            <option value="">Seleccione un director</option>
+        </select>
+    
+        <button type="submit">Crear película</button>
+        <div id="createError"></div>
     </form>
+    
 
     <h2>Películas</h2>
     <table id="peliculasTable">
