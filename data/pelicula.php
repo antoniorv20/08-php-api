@@ -13,7 +13,7 @@ class Pelicula{
     }
 
     public function getAll(){
-        $result = $this->db->query("SELECT id, titulo, precio, id_director FROM pelicula;");
+        $result = $this->db->query("SELECT id, titulo, precio, id_director, portada FROM pelicula;");
         return $result->fetch_all(MYSQLI_ASSOC);    
     }
 
