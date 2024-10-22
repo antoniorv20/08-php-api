@@ -21,8 +21,10 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost/08-php-api/controllers/peliculas.php';
-        const DIRECTOR_API_URL = 'http://localhost/08-php-api/controllers/directores.php';
+
+        
+        const API_URL = 'https://antoniorv.com/controllers/peliculas.php';
+        const DIRECTOR_API_URL = 'https://antoniorv.com/controllers/directores.php';
 
         const moviesGrid = document.getElementById('moviesGrid');
         const searchInput = document.getElementById('searchInput');
